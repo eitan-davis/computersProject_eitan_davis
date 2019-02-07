@@ -4,12 +4,6 @@
 from math import sqrt
 from typing import List, Tuple, Callable
 from matplotlib import pyplot
-#from classes import *
-#import parse_row
-#import parse_collom
-#from extracts import *
-#import fitting
-#import plot
 
 class PlotPoint2D(object):
     def __init__(self, X:float, dX:float, Y:float, dY:float):
