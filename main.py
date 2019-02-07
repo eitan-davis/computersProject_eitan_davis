@@ -393,6 +393,7 @@ def extract_parms_to_fit(lines, A_HEADER_PREFIX = A_HEADER_PREFIX, B_HEADER_PREF
     
     return paramA, paramB
 
+# - - main functions - -
 
 def search_best_parameter(filename):
     
@@ -443,5 +444,3 @@ def search_best_parameter(filename):
     plot_data_and_fit(dataX, datadX, dataY, datadY, bestA, bestB, axisX, axisY)
     # plot chi2(a, b=bestB)
     plot_simple_graph(ListParamA, [calc_chi_2(points,varA,bestB) for varA in ListParamA], labelY=f'chi2(a, b = {bestB:.2f})')
-
-
