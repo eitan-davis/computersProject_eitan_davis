@@ -6,6 +6,7 @@ from matplotlib import pyplot
 
 class PlotPoint2D(object):
     def __init__(self, X:float, dX:float, Y:float, dY:float):
+        # the constructor makes sure that uncertainty is positive, if not UncertaintyValueError raises
         if dX <= 0 or dY <= 0:
             if dX >= 0:
                 raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dY'={dY}")
@@ -62,12 +63,15 @@ def identify_rows_or_colloms (first_line :str):
 # - - row - -
 
 def row_revile_indexes(lines_vars: List[List[str]], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
-    
+    """
+    returns the indexes of the x, dx, y and dy rows respectively (type int)
+    """
+    # defual value for the indexes
     index_x, index_dx, index_y, index_dy = -1, -1, -1, -1
 
     for line_vas in enumerate(lines_vars):
         
-        #has all the indexes been defined, if so return the result
+        #have all the indexes been defined, if so return the result
         if index_x != -1  and index_dx != -1 and index_y != -1 and index_dy != -1:
             return index_x, index_dx, index_y, index_dy
 
@@ -91,7 +95,7 @@ def row_revile_indexes(lines_vars: List[List[str]], labale_X :str = LABALE_X, la
 
 def row_pars_lines(lines_vars: List[List[str]]):
     """
-    
+    parses the content of the lines into list of X, dX, Y, dY respectively
     """
     index_x, index_dx, index_y, index_dy = row_revile_indexes(lines_vars)
     
@@ -106,37 +110,10 @@ def row_pars_lines(lines_vars: List[List[str]]):
 
 # - - collom - -
 
-def collom_pars_lines(lines_vars: List[List[str]]):
-    """
-    parses the content of the lines into list of X, dX, Y, dY
-    """
-    
-    index_x, index_dx, index_y, index_dy = collom_revile_indexes(lines_vars[0])
-    
-    if len(lines_vars)==1:
-        raise Exception("Input file error: no data in the file")
-    
-    dataX, datadX, dataY, datadY = [], [], [], []
-
-    for i in range(len(lines_vars)-1):    
-        elements = lines_vars[i+1]
-        
-        #chek is the list of numbers ended 
-        if elements == [] or elements == [''] or not elements[0].isnumeric():
-            break
-        #chek are 
-        if len(elements)<4:
-            raise LengthError(f"not enough numbers in line {i} of the content")
-
-        dataX.append( float(elements[index_x]))
-        datadX.append(float(elements[index_dx]))
-        dataY.append( float(elements[index_y]))
-        datadY.append(float(elements[index_dy]))
-    
-    return dataX, datadX, dataY, datadY
-
-
 def collom_revile_indexes(first_line_vars :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+    """
+    returns the indexes of the x, dx, y and dy colloms respectively (type int)
+    """
     index_x, index_dx, index_y, index_dy = -1, -1, -1, -1
 
     for element in enumerate(first_line_vars):
@@ -157,9 +134,40 @@ def collom_revile_indexes(first_line_vars :List[str], labale_X :str = LABALE_X, 
 
     return index_x, index_dx, index_y, index_dy      
 
-#
-def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+
+def collom_pars_lines(lines_vars: List[List[str]]):
+    """
+    parses the content of the lines into list of X, dX, Y, dY respectively
+    """
+    index_x, index_dx, index_y, index_dy = collom_revile_indexes(lines_vars[0])
     
+    if len(lines_vars)==1:
+        raise Exception("Input file error: no data in the file")
+    
+    dataX, datadX, dataY, datadY = [], [], [], []
+
+    for i in range(len(lines_vars)-1):    
+        elements = lines_vars[i+1]
+        
+        #check is the list of numbers ended 
+        if elements == [] or elements == [''] or not elements[0].isnumeric():
+            break
+        #check are there enough numbers for converting the line if not LengthError raises
+        if len(elements)<4:
+            raise LengthError(f"not enough numbers in line {i} of the content")
+
+        dataX.append( float(elements[index_x]))
+        datadX.append(float(elements[index_dx]))
+        dataY.append( float(elements[index_y]))
+        datadY.append(float(elements[index_dy]))
+    
+    return dataX, datadX, dataY, datadY
+
+
+def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+    """
+    convert the lines of the text to x, dx, y, dy listes and return the list of points and x, dx, y, dy listes
+    """
     #dedect rows or coloms
     mode = identify_rows_or_colloms(lines[0])
 
@@ -171,18 +179,18 @@ def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE
     dataY  :List[float] = []
     datadY :List[float] = []
 
-    #extractr the data 
+    # extractr the data 
     if mode == "row":
         dataX, datadX, dataY, datadY = row_pars_lines(lines_vars)
     else :
         dataX, datadX, dataY, datadY = collom_pars_lines(lines_vars)
     
-    # chek are the lists in the same same length.
+    # check are the lists (x, dx, y, dy) in the same same length, if not raise LengthError
     # if not raire LengthError
     if not (len(dataX) == len(datadX) == len(dataY) == len(datadY)):
         raise LengthError
 
-    #orgenis the data in one list of a class PlotPoint2D for ploting and calc chi 2
+    #orgenis the data in one list of a class PlotPoint2D for ploting and calculate chi2
     points = [PlotPoint2D(dataX[i], datadX[i], dataY[i], datadY[i]) for i in range(len(dataX))]
     
     return points, dataX, datadX, dataY, datadY
@@ -192,7 +200,7 @@ X_HEADER_PREFIX = "x axis:"
 Y_HEADER_PREFIX = "y axis:"
 def extract_headers(lines :List[str], X_HEADER_PREFIX :str = X_HEADER_PREFIX, Y_HEADER_PREFIX :str = Y_HEADER_PREFIX):
     """
-    finde the headers in the lines of the text for the X axis and Y axis
+    returns the headers in the lines of the text for the X lable and Y lable
     """
     headerX = ''
     headerY = ''
@@ -218,7 +226,9 @@ def extract_headers(lines :List[str], X_HEADER_PREFIX :str = X_HEADER_PREFIX, Y_
 # - - fitting - -
 
 def get_liniar_fit(points :List[PlotPoint2D] ):
-    
+    """
+    calculates best parameter a, b and thire uncertainties, da, db, respectively for liniar fit assumint that dy>>a*dx
+    """
     N = len(points)
 
     dy_2_sum = sum([point.dY**-2 for point in points])
@@ -250,7 +260,7 @@ def weighted_average(points :List[PlotPoint2D], func :Callable[[PlotPoint2D],flo
 
 def calc_chi_2_liniar(points :List[PlotPoint2D], a :float, b :float):
     """
-    calculates chi^2 for liniar fit assumint that dy>>dx
+    calculates chi^2 for liniar fit assumint that dy>>a*dx
     """
     return sum([( (point.Y - (a * point.X + b)) / (point.dY) )**2 for point in points])
 
@@ -258,9 +268,8 @@ def calc_chi_2_liniar(points :List[PlotPoint2D], a :float, b :float):
 def calc_chi_2(points :List[PlotPoint2D], a :float, b :float,
                function :Callable[[float,float,float], float] = (lambda x, m, n: (x * m + n))):
     """
-    calculates chi^2 for any funtion 
+    calculates chi^2 for any funtion, liniar function is the defualt
     """
-    
     return float(sum([( (point.Y - function(point.X, a, b)) /
                         ((point.dY**2 + (function(point.X + point.dX, a, b) - function(point.X - point.dX, a, b))**2)**0.5) )**2 
                         for point in points]))
@@ -284,7 +293,7 @@ def plot_data_and_fit(dataX :List[float], datadX :List[float], dataY :List[float
         pyplot.savefig(fname = file_name, format = plot_format)
     else:
         pyplot.show()
-    
+    #clean the plot for the next use
     pyplot.gcf().clear()
 
     
@@ -302,7 +311,7 @@ def plot_simple_graph(dataX :List[float], dataY :List[float], labelX:str = 'a', 
         pyplot.savefig(fname = file_name, format = plot_format)
     else:
         pyplot.show()
-    
+    # clean the plot for next use
     pyplot.gcf().clear()
 
 
@@ -346,6 +355,9 @@ def fit_linear(path: str):
 
 
 def arange(start :float, stop :float, step :float = 1.):
+    """
+    
+    """
     if start == stop:
         return [start]
     if step == 0:
@@ -356,7 +368,7 @@ def arange(start :float, stop :float, step :float = 1.):
     arr = []
     
     for i in range(0, int(abs((stop-start)/step)+1)):
-        #
+        # float addition tend to some lack of accuracy, to avoid that each variable is multiplied by a number, fixer_fractions, and the result is divided by that number
         arr.append((start * fixer_fractions +  i * (step * fixer_fractions))/fixer_fractions)
         i += 1
     
@@ -417,6 +429,7 @@ def search_best_parameter(path :str):
     
     best_chi2 = calc_chi_2(points,bestA,bestB)
     
+    # numerically searches for best fit parameters
     for i in ListParamA:
         for j in ListParamB:
             temp_chi2 = calc_chi_2(points, i, j)
@@ -432,5 +445,5 @@ def search_best_parameter(path :str):
     print(f"chi2_reduced = {chi2_reduced}", end = '\n')
 
     plot_data_and_fit(dataX, datadX, dataY, datadY, bestA, bestB, axisX, axisY)
-
+    # plot chi2(a, b=bestB)
     plot_simple_graph(ListParamA, [calc_chi_2(points,varA,bestB) for varA in ListParamA], labelY=f'chi2(a, b = {bestB:.2f})')
