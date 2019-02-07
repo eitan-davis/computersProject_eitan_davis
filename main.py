@@ -1,11 +1,11 @@
-#!/usr/bin/python3.7
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from typing import List, Tuple, Callable
 from matplotlib import pyplot
 
 class PlotPoint2D(object):
-    def __init__(self, X:float, dX:float, Y:float, dY:float):
+    def __init__(self, X, dX, Y, dY):
         # the constructor makes sure that uncertainty is positive, if not UncertaintyValueError raises
         if dX <= 0 or dY <= 0:
             if dX >= 0:
@@ -15,10 +15,10 @@ class PlotPoint2D(object):
 
             raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dX'={dX} and 'dY'={dY}")
         
-        self.X  :float = X
-        self.dX :float = dX
-        self.Y  :float = Y
-        self.dY :float = dY
+        self.X  = X
+        self.dX = dX
+        self.Y  = Y
+        self.dY = dY
 
 
 class LengthError(Exception):
@@ -33,15 +33,15 @@ class UncertaintyValueError(Exception):
             self.args = ("Uncertainty Value Error: uncertainty must be positive number",)
 
 
-def get_file_content(path :str):
-    with open(path,'rt') as target:
+def get_file_content(filename):
+    with open(filename,'rt') as target:
         return str(target.read())  
 
 LABALE_X  = 'x'
 LABALE_dX = 'dx'
 LABALE_Y  = 'y'
 LABALE_dY = 'dy'
-def identify_rows_or_colloms (first_line :str):
+def identify_rows_or_colloms (first_line):
     """
     identify is the given data is in rows, returns 'row', or colloms, returns 'collom'.
     """
@@ -62,7 +62,7 @@ def identify_rows_or_colloms (first_line :str):
 
 # - - row - -
 
-def row_revile_indexes(lines_vars: List[List[str]], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+def row_revile_indexes(lines_vars, labale_X = LABALE_X, labale_dX = LABALE_dX, labale_Y = LABALE_Y, labale_dY = LABALE_dY):
     """
     returns the indexes of the x, dx, y and dy rows respectively (type int)
     """
@@ -93,7 +93,7 @@ def row_revile_indexes(lines_vars: List[List[str]], labale_X :str = LABALE_X, la
     return index_x, index_dx, index_y, index_dy
 
 
-def row_pars_lines(lines_vars: List[List[str]]):
+def row_pars_lines(lines_vars):
     """
     parses the content of the lines into list of X, dX, Y, dY respectively
     """
@@ -110,7 +110,7 @@ def row_pars_lines(lines_vars: List[List[str]]):
 
 # - - collom - -
 
-def collom_revile_indexes(first_line_vars :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+def collom_revile_indexes(first_line_vars, labale_X  = LABALE_X, labale_dX  = LABALE_dX, labale_Y  = LABALE_Y, labale_dY  = LABALE_dY):
     """
     returns the indexes of the x, dx, y and dy colloms respectively (type int)
     """
@@ -135,7 +135,7 @@ def collom_revile_indexes(first_line_vars :List[str], labale_X :str = LABALE_X, 
     return index_x, index_dx, index_y, index_dy      
 
 
-def collom_pars_lines(lines_vars: List[List[str]]):
+def collom_pars_lines(lines_vars):
     """
     parses the content of the lines into list of X, dX, Y, dY respectively
     """
@@ -164,7 +164,7 @@ def collom_pars_lines(lines_vars: List[List[str]]):
     return dataX, datadX, dataY, datadY
 
 
-def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE_dX, labale_Y :str = LABALE_Y, labale_dY :str = LABALE_dY):
+def get_data(lines, labale_X  = LABALE_X, labale_dX  = LABALE_dX, labale_Y  = LABALE_Y, labale_dY  = LABALE_dY):
     """
     convert the lines of the text to x, dx, y, dy listes and return the list of points and x, dx, y, dy listes
     """
@@ -174,10 +174,10 @@ def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE
     #spit the text from each line
     lines_vars = [line.split() for line in lines ]
     
-    dataX  :List[float] = []
-    datadX :List[float] = []
-    dataY  :List[float] = []
-    datadY :List[float] = []
+    dataX  = []
+    datadX = []
+    dataY  = []
+    datadY = []
 
     # extractr the data 
     if mode == "row":
@@ -198,7 +198,7 @@ def get_data(lines :List[str], labale_X :str = LABALE_X, labale_dX :str = LABALE
 
 X_HEADER_PREFIX = "x axis:"
 Y_HEADER_PREFIX = "y axis:"
-def extract_headers(lines :List[str], X_HEADER_PREFIX :str = X_HEADER_PREFIX, Y_HEADER_PREFIX :str = Y_HEADER_PREFIX):
+def extract_headers(lines, X_HEADER_PREFIX = X_HEADER_PREFIX, Y_HEADER_PREFIX = Y_HEADER_PREFIX):
     """
     returns the headers in the lines of the text for the X lable and Y lable
     """
@@ -225,7 +225,7 @@ def extract_headers(lines :List[str], X_HEADER_PREFIX :str = X_HEADER_PREFIX, Y_
 
 # - - fitting - -
 
-def get_liniar_fit(points :List[PlotPoint2D] ):
+def get_liniar_fit(points):
     """
     calculates best parameter a, b and thire uncertainties, da, db, respectively for liniar fit assumint that dy>>a*dx
     """
@@ -251,21 +251,21 @@ def get_liniar_fit(points :List[PlotPoint2D] ):
     return a, da, b, db, N
 
 
-def weighted_average(points :List[PlotPoint2D], func :Callable[[PlotPoint2D],float], dy_2_sum :float = 0.0):
+def weighted_average(points, func :Callable[[PlotPoint2D],float], dy_2_sum  = 0.0):
     if dy_2_sum > 0:
         return float(sum([(func(point) / point.dY**2) for point in points]) / dy_2_sum)
     else :
         return float(sum([(func(point) / point.dY**2) for point in points]) / sum([point.dY**-2 for point in points]))
 
 
-def calc_chi_2_liniar(points :List[PlotPoint2D], a :float, b :float):
+def calc_chi_2_liniar(points, a , b ):
     """
     calculates chi^2 for liniar fit assumint that dy>>a*dx
     """
     return sum([( (point.Y - (a * point.X + b)) / (point.dY) )**2 for point in points])
 
 
-def calc_chi_2(points :List[PlotPoint2D], a :float, b :float,
+def calc_chi_2(points, a , b ,
                function :Callable[[float,float,float], float] = (lambda x, m, n: (x * m + n))):
     """
     calculates chi^2 for any funtion, liniar function is the defualt
@@ -277,9 +277,9 @@ def calc_chi_2(points :List[PlotPoint2D], a :float, b :float,
 
 # - - plot - -
 
-def plot_data_and_fit(dataX :List[float], datadX :List[float], dataY :List[float], datadY :List[float], 
-                      a :float, b :float, labelX:str, labelY :str, 
-                      file_name :str = 'linear_fit', plot_format :str='svg'):
+def plot_data_and_fit(dataX, datadX, dataY, datadY, 
+                      a , b , labelX, labelY , 
+                      file_name  = 'linear_fit', plot_format ='svg'):
     
     pyplot.plot( dataX, [a * x + b for x in dataX], 'red')
     
@@ -298,8 +298,8 @@ def plot_data_and_fit(dataX :List[float], datadX :List[float], dataY :List[float
 
     
 
-def plot_simple_graph(dataX :List[float], dataY :List[float], labelX:str = 'a', labelY :str = 'chi2(a,b)',
-                      file_name :str = 'numeric_sampling', plot_format :str='svg', plot_color :str= 'blue'):
+def plot_simple_graph(dataX, dataY, labelX = 'a', labelY  = 'chi2(a,b)',
+                      file_name  = 'numeric_sampling', plot_format ='svg', plot_color = 'blue'):
     
     pyplot.plot(dataX, dataY, plot_color)
     
@@ -316,10 +316,10 @@ def plot_simple_graph(dataX :List[float], dataY :List[float], labelX:str = 'a', 
 
 
 
-def fit_linear(path: str):
+def fit_linear(filename: str):
     
     # get the file content and split it into lines
-    lines :List[str] = [line for line in (get_file_content(path = path)).split('\n')]
+    lines = [line for line in (get_file_content(filename)).split('\n')]
     
     # remove begining empty or spase only lines
     for element in enumerate(lines):
@@ -354,7 +354,7 @@ def fit_linear(path: str):
     plot_data_and_fit(dataX, datadX, dataY, datadY, a, b, labelX, labelY)
 
 
-def arange(start :float, stop :float, step :float = 1.):
+def arange(start , stop , step  = 1.):
     """
     
     """
@@ -377,7 +377,7 @@ def arange(start :float, stop :float, step :float = 1.):
 
 A_HEADER_PREFIX = "a "
 B_HEADER_PREFIX = "b "
-def extract_parms_to_fit(lines :List[str], A_HEADER_PREFIX :str= A_HEADER_PREFIX, B_HEADER_PREFIX :str= B_HEADER_PREFIX):
+def extract_parms_to_fit(lines, A_HEADER_PREFIX = A_HEADER_PREFIX, B_HEADER_PREFIX = B_HEADER_PREFIX):
     """
     get the values list for the paramater a and b frome the lines of the content of the file
     """
@@ -398,10 +398,10 @@ def extract_parms_to_fit(lines :List[str], A_HEADER_PREFIX :str= A_HEADER_PREFIX
     return paramA, paramB
 
 
-def search_best_parameter(path :str):
+def search_best_parameter(filename):
     
     # get the file content and split it into lines
-    lines :List[str] = [line for line in (get_file_content(path = path)).split('\n')]
+    lines = [line for line in (get_file_content(filename)).split('\n')]
     # remove begining empty or spase only lines
     for element in enumerate(lines):
         if element[1].replace(' ','')=='':
@@ -447,3 +447,4 @@ def search_best_parameter(path :str):
     plot_data_and_fit(dataX, datadX, dataY, datadY, bestA, bestB, axisX, axisY)
     # plot chi2(a, b=bestB)
     plot_simple_graph(ListParamA, [calc_chi_2(points,varA,bestB) for varA in ListParamA], labelY=f'chi2(a, b = {bestB:.2f})')
+
