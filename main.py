@@ -12,7 +12,7 @@ from matplotlib import pyplot
 #import plot
 
 class PlotPoint2D(object):
-    def __init__(self, X:float, dX:float, Y:float, dY:float):# #*args, **kwargs):
+    def __init__(self, X:float, dX:float, Y:float, dY:float):
         if dX <= 0 or dY <= 0:
             if dX >= 0:
                 raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dY'={dY}")
