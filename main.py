@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
-from typing import List, Tuple, Callable
 from matplotlib import pyplot
 
 class PlotPoint2D(object):
@@ -13,8 +11,7 @@ class PlotPoint2D(object):
             if dY >= 0:
                 raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dX'={dX}")
 
-            raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dX'={dX} and 'dY'={dY}")
-        
+            raise UncertaintyValueError(f"Uncertainty Value Error: uncertainty must be positive number, got 'dX'={dX} and 'dY'={dY}")    
         self.X  = X
         self.dX = dX
         self.Y  = Y
@@ -251,7 +248,7 @@ def get_liniar_fit(points):
     return a, da, b, db, N
 
 
-def weighted_average(points, func :Callable[[PlotPoint2D],float], dy_2_sum  = 0.0):
+def weighted_average(points, func, dy_2_sum  = 0.0):
     if dy_2_sum > 0:
         return float(sum([(func(point) / point.dY**2) for point in points]) / dy_2_sum)
     else :
@@ -265,8 +262,7 @@ def calc_chi_2_liniar(points, a , b ):
     return sum([( (point.Y - (a * point.X + b)) / (point.dY) )**2 for point in points])
 
 
-def calc_chi_2(points, a , b ,
-               function :Callable[[float,float,float], float] = (lambda x, m, n: (x * m + n))):
+def calc_chi_2(points, a , b ,function = (lambda x, m, n: (x * m + n))):
     """
     calculates chi^2 for any funtion, liniar function is the defualt
     """
@@ -447,4 +443,3 @@ def search_best_parameter(filename):
     plot_data_and_fit(dataX, datadX, dataY, datadY, bestA, bestB, axisX, axisY)
     # plot chi2(a, b=bestB)
     plot_simple_graph(ListParamA, [calc_chi_2(points,varA,bestB) for varA in ListParamA], labelY=f'chi2(a, b = {bestB:.2f})')
-
