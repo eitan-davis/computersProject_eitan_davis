@@ -1,7 +1,6 @@
 #!/usr/bin/python3.7
 # -*- coding: utf-8 -*-
 
-from math import sqrt
 from typing import List, Tuple, Callable
 from matplotlib import pyplot
 
